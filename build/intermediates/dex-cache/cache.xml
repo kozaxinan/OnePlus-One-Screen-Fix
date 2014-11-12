@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<pre-dex-items>
+
+    <item
+        dex="C:\AndroidStudioProjects\FixMyOPO&apos;sscreen\app\build\intermediates\pre-dexed\debug\mint-4.0.3-1a108f60e450258822ef54c2232364dadba4497a.jar"
+        jar="C:\Users\Sinan\.gradle\caches\modules-2\files-2.1\com.splunk.mint\mint\4.0.3\4aba04b01f55a588c94cab0ac11b931761705f90\mint-4.0.3.jar"
+        jumboMode="false"
+        revision="21.0.1"
+        sha1="4aba04b01f55a588c94cab0ac11b931761705f90"/>
+    <item
+        dex="C:\AndroidStudioProjects\FixMyOPO&apos;sscreen\app\build\intermediates\pre-dexed\debug\FlurryAnalytics-4.2.0-99b66c9d108ecd95c3a8c0a5979d8aafa70d7744.jar"
+        jar="C:\AndroidStudioProjects\FixMyOPO&apos;sscreen\app\libs\FlurryAnalytics-4.2.0.jar"
+        jumboMode="false"
+        revision="21.0.1"
+        sha1="39e06eb3e9363f82173d8b1c8ebc2d763486dce5"/>
+    <item
+        dex="C:\AndroidStudioProjects\FixMyOPO&apos;sscreen\app\build\intermediates\pre-dexed\debug\Feedback-e4a10ee660a35daff2fc3b50fdb4a1abcbe621ae.jar"
+        jar="C:\AndroidStudioProjects\FixMyOPO&apos;sscreen\app\libs\Feedback.jar"
+        jumboMode="false"
+        revision="21.0.1"
+        sha1="f4c72f5e4af3ea8f490c9fd23c813cca3cf2eecb"/>
+
+</pre-dex-items>

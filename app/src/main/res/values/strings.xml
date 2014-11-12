@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Fix OPO\'s Screen</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="beta_warning">This is time limited BETA version. App will not be available after 23.10.15.</string>
+
+</resources>
