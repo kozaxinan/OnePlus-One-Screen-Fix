@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.apk
 *.ap_
 *.dex
@@ -25,3 +26,4 @@ pom.xml.*
 local.properties
 build.xml
 proguard-project.txt
+
