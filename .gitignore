@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 *.apk
 *.ap_
 *.dex
@@ -17,6 +16,7 @@ classes/
 gen-external-apklibs/
 out/
 tmp/
+build/
 .project
 target
 release.properties
