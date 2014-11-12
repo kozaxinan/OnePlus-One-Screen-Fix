@@ -1,9 +1,12 @@
 package com.kozaxinan.fixoposcreen;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -43,6 +46,11 @@ public class MainActivity extends Activity {
 		service.setChecked(AppSettings.getInstance().isServiceEnable(getApplicationContext()));
 	}
 
+	public void onLinkClicked(View view) {
+		Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/kozaxinan/OnePlus-One-Screen-Fix"));
+		startActivity(browserIntent);
+	}
+
 	@Override
 	protected void onStart() {
 		super.onStart();
@@ -74,11 +82,6 @@ public class MainActivity extends Activity {
 		int id = item.getItemId();
 
 		Feedback.with(this).checkMenu(item, this);
-
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
-		}
 
 		return super.onOptionsItemSelected(item);
 	}
