@@ -28,6 +28,8 @@ import java.lang.reflect.Method;
 
 /**
  * Created by Sinan on 20.10.2014.
+ *
+ * This service put a view on status bar. This view catches the ghost touch.
  */
 public class FixServices extends Service implements SensorEventListener {
 
@@ -68,7 +70,7 @@ public class FixServices extends Service implements SensorEventListener {
 		// For debug
 		// statusBarView.setBackgroundColor(Color.GREEN);
 
-		WindowManager.LayoutParams params = null;
+		WindowManager.LayoutParams params;
 
 		WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
@@ -118,9 +120,6 @@ public class FixServices extends Service implements SensorEventListener {
 
 							// Hang up call
 							disconnectCallAndroid();
-
-							// Increase the fix number
-							AppSettings.getInstance().increaseUseCount(getApplicationContext());
 						}
 						break;
 
@@ -170,6 +169,9 @@ public class FixServices extends Service implements SensorEventListener {
 	@Override
 	public void onDestroy() {
 		Log.d("FixServices", "onDestroy");
+
+		// Increase the fix number
+		AppSettings.getInstance().increaseUseCount(getApplicationContext());
 
 		// Collapse navigation panel
 		collapse();
