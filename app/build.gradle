@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 
 repositories {
@@ -9,6 +11,11 @@ repositories {
     }
 }
 
+SimpleDateFormat timeStampFormat = new SimpleDateFormat(
+        "EEE MMMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+String timeStamp = timeStampFormat.format(Calendar.getInstance().getTime());
+String playPublicKey = System.getenv("ACDISPLAY_GOOGLE_PLAY_PUBLIC_KEY");
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.1"
@@ -17,22 +24,38 @@ android {
         applicationId "com.kozaxinan.fixoposcreen"
         minSdkVersion 19
         targetSdkVersion 21
-        versionCode 6
-        versionName "0.3"
+        versionCode 7
+        versionName "0.3.1"
     }
     buildTypes {
+        debug {
+            versionNameSuffix '-debug'
+            buildConfigField "boolean", "MY_DEBUG", "true"
+            buildConfigField "String", "MY_TIME_STAMP", "\"" + timeStamp + "\""
+            // In-App-Billings service compares the signs of apks, so
+            // the service won't accept debug build.
+            buildConfigField "String", "MY_GOOGLE_PLAY_PUBLIC_KEY", "null"
+        }
         release {
+            zipAlign true
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", "MY_DEBUG", "false"
+            buildConfigField "String", "MY_TIME_STAMP", "\"" + timeStamp + "\""
+            buildConfigField "String", "MY_GOOGLE_PLAY_PUBLIC_KEY", "\"" + playPublicKey + "\""
         }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-
-    compile "com.splunk.mint:mint:4.0.3"
-
-    compile(name:'Feedback-release', ext:'aar')
+    compile 'com.splunk.mint:mint:4.0.3'
+    compile(name: 'Feedback-release', ext: 'aar')
+    compile 'commons-lang:commons-lang:2.3'
 }
