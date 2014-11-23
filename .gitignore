@@ -23,7 +23,8 @@ release.properties
 pom.xml.*
 
 #Command line
-local.properties
+/local.properties
 build.xml
 proguard-project.txt
+/app/billing.properties
 

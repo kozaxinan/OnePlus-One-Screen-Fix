@@ -38,7 +38,7 @@
 
 -keepattributes Signature
 
--libraryjars libs/FlurryAnalytics-4.2.0.jar
+#-libraryjars libs/FlurryAnalytics-4.2.0.jar
 
 -keep public class * extends android.app.Activity
 -keep public class * extends android.app.Application
@@ -103,7 +103,9 @@
 
 -keep class com.flurry.** { *; }
 -keep interface com.flurry.** { *; }
-
 -dontwarn com.flurry.**
+
 -keep class com.google.android.gms.** { *; }
 -dontwarn com.google.android.gms.**
+
+-keep class com.android.vending.billing.**

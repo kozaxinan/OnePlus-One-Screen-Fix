@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.flurry.android.FlurryAgent;
 import com.kozaxinan.feedback.Feedback;
+import com.kozaxinan.fixoposcreen.iab.DialogHelper;
 import com.splunk.mint.Mint;
 
 
@@ -30,6 +31,8 @@ public class MainActivity extends Activity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				AppSettings.getInstance().enableService(getApplicationContext(), isChecked);
+
+				DialogHelper.showDonateDialog(MainActivity.this);
 			}
 		});
 
@@ -42,7 +45,15 @@ public class MainActivity extends Activity {
 
 		TextView count = (TextView) findViewById(R.id.textView);
 
-		count.setText(AppSettings.getInstance().getUseCount(this) + " times fixed.");
+		// Update text count every time
+		int useCount = AppSettings.getInstance().getUseCount(this);
+
+		if (useCount < 1) {
+			count.setText(useCount + " times fixed.");
+		} else if (useCount == 1) {
+			count.setText(useCount + " time fixed.");
+		}
+
 		service.setChecked(AppSettings.getInstance().isServiceEnable(getApplicationContext()));
 	}
 
