@@ -31,8 +31,6 @@ public class MainActivity extends Activity {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				AppSettings.getInstance().enableService(getApplicationContext(), isChecked);
-
-				DialogHelper.showDonateDialog(MainActivity.this);
 			}
 		});
 
@@ -48,11 +46,18 @@ public class MainActivity extends Activity {
 		// Update text count every time
 		int useCount = AppSettings.getInstance().getUseCount(this);
 
-		if (useCount < 1) {
+		if (useCount > 1) {
 			count.setText(useCount + " times fixed.");
 		} else if (useCount == 1) {
 			count.setText(useCount + " time fixed.");
 		}
+
+		findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				DialogHelper.showDonateDialog(MainActivity.this);
+			}
+		});
 
 		service.setChecked(AppSettings.getInstance().isServiceEnable(getApplicationContext()));
 	}
