@@ -1,9 +1,9 @@
 package com.kozaxinan.fixoposcreen;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,7 +17,7 @@ import com.kozaxinan.fixoposcreen.iab.DialogHelper;
 import com.splunk.mint.Mint;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
 	private CheckBox service;
 
