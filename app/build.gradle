@@ -31,13 +31,13 @@ println "- - - - - - - - - - - -"
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
     defaultConfig {
         applicationId "com.kozaxinan.fixoposcreen"
         minSdkVersion 19
         targetSdkVersion 21
-        versionCode 10
-        versionName "0.4.2"
+        versionCode 11
+        versionName "0.4.3"
     }
     buildTypes {
         debug {
