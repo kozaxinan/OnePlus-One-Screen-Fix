@@ -42,6 +42,10 @@ public class FixServices extends Service implements SensorEventListener {
 	/** The dummy view for to put on top of status bar. It will consume ghost touchs */
 	private View statusBarView;
 
+	private WindowManager.LayoutParams params;
+
+	private WindowManager wm;
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -68,18 +72,16 @@ public class FixServices extends Service implements SensorEventListener {
 		statusBarView = new View(getApplicationContext());
 
 		// For debug
-		// statusBarView.setBackgroundColor(Color.GREEN);
+//		statusBarView.setBackgroundColor(Color.GREEN);
 
-		WindowManager.LayoutParams params;
-
-		WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+		wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
 		Display display = wm.getDefaultDisplay();
 
 		// Put a view above status bar
 		// Problem occurs at left side so there is no need to cover all of it. We can left right side
 		params = new WindowManager.LayoutParams(display.getWidth() * 2 / 3,
-												statusBarHeight * 3,
+												statusBarHeight * 4,
 												WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
 												WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
 														| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
@@ -88,7 +90,7 @@ public class FixServices extends Service implements SensorEventListener {
 												PixelFormat.TRANSLUCENT);
 
 		params.gravity = Gravity.LEFT | Gravity.TOP;
-		wm.addView(statusBarView, params);
+//		wm.addView(statusBarView, params);
 
 		// Handle the problem
 		// At first there was a ghost touch on left side of status bar.
@@ -106,6 +108,7 @@ public class FixServices extends Service implements SensorEventListener {
 				switch (action) {
 					case MotionEvent.ACTION_DOWN:
 						// finger touches the screen
+						hide();
 						break;
 
 					case MotionEvent.ACTION_MOVE:
@@ -152,13 +155,7 @@ public class FixServices extends Service implements SensorEventListener {
 			method.setAccessible(true);
 			ITelephony telephonyService = (ITelephony) method.invoke(telephonyManager);
 			telephonyService.endCall();
-		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
+		} catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 	}
@@ -185,8 +182,7 @@ public class FixServices extends Service implements SensorEventListener {
 		mSensorManager.unregisterListener(this);
 
 		// Remove dummy view which is on top of status bar
-		WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
-		wm.removeView(statusBarView);
+		hide();
 
 		if (!BuildConfig.DEBUG) {
 			FlurryAgent.onEndSession(getApplicationContext());
@@ -221,6 +217,24 @@ public class FixServices extends Service implements SensorEventListener {
 		// If sensor value changed from 0, try to collapse navigation panel
 		if (distance != 0) {
 			collapse();
+		} else {
+			show();
+		}
+	}
+
+	private void show() {
+		try {
+			wm.addView(statusBarView, params);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void hide() {
+		try {
+			wm.removeView(statusBarView);
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -230,9 +244,7 @@ public class FixServices extends Service implements SensorEventListener {
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		Log.d("onAccuracyChanged", "accuracy " + accuracy);
-
 	}
-
 
 	/**
 	 * During a phone call, try to detect action events.
