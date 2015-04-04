@@ -36,12 +36,16 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.flurry.android.FlurryAgent;
+import com.kozaxinan.fixoposcreen.AppSettings;
+import com.kozaxinan.fixoposcreen.BuildConfig;
 import com.kozaxinan.fixoposcreen.R;
 import com.kozaxinan.fixoposcreen.iab.utils.IabHelper;
 import com.kozaxinan.fixoposcreen.iab.utils.IabResult;
 import com.kozaxinan.fixoposcreen.iab.utils.Inventory;
 import com.kozaxinan.fixoposcreen.iab.utils.Purchase;
 import com.kozaxinan.fixoposcreen.iab.utils.ViewUtils;
+import com.splunk.mint.Mint;
 
 import java.util.HashSet;
 
@@ -125,64 +129,7 @@ public class DonationFragment extends DialogFragment {
 
 		final AlertDialog alertDialog;
 
-		// Show PayPal button.
-//		final Intent paypalIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Build.Links.DONATE));
-//		builder.setNeutralButton(R.string.paypal, null);
-
 		alertDialog = builder.create();
-//		alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-//
-//			final class Data {
-//
-//				private final Button button;
-//
-//				private final Intent intent;
-//
-//				private final int iconResource;
-//
-//				private Data(Button button, Intent intent, int iconResource) {
-//					this.button = button;
-//					this.intent = intent;
-//					this.iconResource = iconResource;
-//				}
-//			}
-//
-//			@Override
-//			public void onShow(DialogInterface dialog) {
-//				Data[] datas = new Data[]{
-//						new Data(
-//								alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL),
-//								paypalIntent, R.drawable.ic_action_paypal),
-//				};
-//
-//				ImageSpan span;
-//				SpannableString text;
-//				for (final Data data : datas) {
-//					final Button btn = data.button;
-//					if (btn != null) {
-//						span = new ImageSpan(getActivity(), data.iconResource);
-//
-//						// Replace text with an icon.
-//						// This is a workaround to fix compound button's aligment.
-//						text = new SpannableString(" ");
-//						text.setSpan(span, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//						btn.setText(text);
-//
-//						// Eat default weight.
-//						btn.setLayoutParams(new LinearLayout.LayoutParams(
-//								ViewGroup.LayoutParams.WRAP_CONTENT,
-//								ViewGroup.LayoutParams.WRAP_CONTENT));
-//
-//						btn.setOnClickListener(new View.OnClickListener() {
-//							@Override
-//							public void onClick(View v) {
-//								startPaymentIntentWithWarningAlertDialog(data.intent);
-//							}
-//						});
-//					}
-//				}
-//			}
-//		});
 
 		initBilling();
 
@@ -273,8 +220,21 @@ public class DonationFragment extends DialogFragment {
 						return;
 					}
 
+					if (purchase == null) {
+						return;
+					}
+
 					String sku = purchase.getSku();
 					mInventorySet.add(sku);
+
+					if (!sku.equals("donation_1") && getActivity() != null) {
+						AppSettings.getInstance().setPro(getActivity(), true);
+					}
+
+					if (!BuildConfig.DEBUG) {
+						Mint.logEvent("donated");
+						FlurryAgent.logEvent("donated");
+					}
 				}
 			};
 
@@ -308,6 +268,12 @@ public class DonationFragment extends DialogFragment {
 
 					updateUi();
 					setWaitScreen(false);
+
+					if (!mInventorySet.isEmpty()) {
+						if (getActivity() != null) {
+							AppSettings.getInstance().setPro(getActivity(), true);
+						}
+					}
 				}
 			};
 
@@ -317,8 +283,13 @@ public class DonationFragment extends DialogFragment {
 	 * @see #initBilling()
 	 */
 	private void disposeBilling() {
-		if (mHelper != null) {
-			mHelper.dispose();
+		try {
+			if (mHelper != null) {
+				mHelper.dispose();
+				mHelper = null;
+			}
+		} catch (Exception e) {
+			Mint.logException(e);
 			mHelper = null;
 		}
 	}

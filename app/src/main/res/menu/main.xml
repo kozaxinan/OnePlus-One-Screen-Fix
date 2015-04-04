@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/xda"
+        android:title="XDA Post"
+        app:showAsAction="never">
+
+    </item>
+    <item
+        android:id="@+id/oneplus"
+        android:title="OnePlus Forum Post"
+        app:showAsAction="never">
+
+    </item>
+    <item
+        android:id="@+id/my_apps"
+        android:title="My Apps"
+        app:showAsAction="never">
+
+    </item>
+</menu>

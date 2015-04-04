@@ -1,80 +1,104 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/white"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView2"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_awesome_toolbar"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="144dp"
+        android:gravity="center"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/not_fixed_yet"
+                android:textColor="@android:color/white"
+                android:textSize="32sp"/>
+
+        </RelativeLayout>
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/button"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/my_awesome_toolbar"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right">
+
+            <android.support.v7.widget.SwitchCompat
+                android:id="@+id/switchCompat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:checked="false"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="22dp"
+                android:text="Make immersive"
+                android:id="@+id/textView2"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="This will hide status bar during phone call. It will be visible after you try to pull it.\nThis is a pro feature and first ten usage are free.\n\nThis mode doesn't require root or Xposed"
+                android:layout_marginRight="50dp"
+                android:layout_below="@id/textView2"
+                android:id="@+id/textView4"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:clickable="true"
+            android:onClick="onLinkClicked"
+            android:paddingBottom="12dp"
+            android:text="This app is available on Github.\nhttps://github.com/kozaxinan/OnePlus-One-Screen-Fix"/>
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Enable service for fix"
+            android:id="@+id/checkBox"
+            android:layout_above="@+id/textView3"
+            android:layout_centerHorizontal="true"
+            android:checked="false"/>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="@string/beta_warning"
-        android:textSize="18sp"
-        android:visibility="gone"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="This app is available on Github.\nhttps://github.com/kozaxinan/OnePlus-One-Screen-Fix"
-        android:textColor="@android:color/black"
-        android:id="@+id/textView3"
-        android:onClick="onLinkClicked"
-        android:clickable="true"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
-
-    <!--<View-->
-        <!--android:layout_width="280dp"-->
-        <!--android:layout_height="280dp"-->
-        <!--android:layout_below="@id/textView3"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:background="@drawable/circle"-->
-        <!--android:id="@+id/view"/>-->
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:paddingBottom="32dp"
-        android:paddingLeft="32dp"
-        android:layout_below="@id/textView3"
-        android:paddingRight="32dp"
-        android:paddingTop="54dp"
-        android:gravity="center"
-        android:text="@string/not_fixed_yet"
-        android:textColor="@android:color/holo_red_dark"
-        android:textSize="30sp"/>
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enable service for fix"
-        android:textColor="@android:color/holo_red_dark"
-        android:id="@+id/checkBox"
-        android:layout_above="@+id/article_fragment"
-        android:layout_centerHorizontal="true"
-        android:checked="false"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:background="#FF9800"
         android:text="Say Thanks and Donate"
-        android:id="@+id/button"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"/>
-
-    <fragment android:name="com.kozaxinan.fixoposcreen.PlusOneFragment"
-              android:id="@+id/article_fragment"
-              android:layout_above="@id/button"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content" />
-
+        android:textColor="@android:color/white"/>
 </RelativeLayout>

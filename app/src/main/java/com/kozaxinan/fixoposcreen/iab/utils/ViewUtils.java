@@ -26,34 +26,36 @@ import android.widget.TextView;
  */
 public class ViewUtils {
 
-    private static final String TAG = "ViewUtils";
+	private static final String TAG = "ViewUtils";
 
-    public static int getTop( View view) {
-        final int[] coordinates = new int[3];
-        view.getLocationInWindow(coordinates);
-        return coordinates[1];
-    }
+	public static int getTop(View view) {
+		final int[] coordinates = new int[3];
+		view.getLocationInWindow(coordinates);
+		return coordinates[1];
+	}
 
-    // //////////////////////////////////////////
-    // //////////// -- VISIBILITY -- ////////////
-    // //////////////////////////////////////////
+	// //////////////////////////////////////////
+	// //////////// -- VISIBILITY -- ////////////
+	// //////////////////////////////////////////
 
-    public static void setVisible( View view, boolean visible) {
-        setVisible(view, visible, View.GONE);
-    }
+	public static void setVisible(View view, boolean visible) {
+		setVisible(view, visible, View.GONE);
+	}
 
-    public static void setVisible( View view, boolean visible, int invisibleFlag) {
-        int visibility = view.getVisibility();
-        int visibilityNew = visible ? View.VISIBLE : invisibleFlag;
+	public static void setVisible(View view, boolean visible, int invisibleFlag) {
+		int visibility = view.getVisibility();
+		int visibilityNew = visible ? View.VISIBLE : invisibleFlag;
 
-        if (visibility != visibilityNew) {
-            view.setVisibility(visibilityNew);
-        }
-    }
+		if (visibility != visibilityNew) {
+			view.setVisibility(visibilityNew);
+		}
+	}
 
-    public static void safelySetText( TextView textView, CharSequence text) {
-        final boolean visible = text != null;
-        if (visible) textView.setText(text);
-        ViewUtils.setVisible(textView, visible);
-    }
+	public static void safelySetText(TextView textView, CharSequence text) {
+		final boolean visible = text != null;
+		if (visible) {
+			textView.setText(text);
+		}
+		ViewUtils.setVisible(textView, visible);
+	}
 }
