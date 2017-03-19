@@ -7,5 +7,7 @@
     <string name="beta_warning">This is time limited BETA version. App will not be available after 23.10.15.</string>
     <string name="paypal">Paypal</string>
     <string name="not_fixed_yet">Fix service will be enabled on first phone call.</string>
+    <string name="banner_ad_unit_id">ca-app-pub-6593018212367471/7686075772</string>
+    <string name="inter_ad_unit_id">ca-app-pub-6593018212367471/9162808977</string>
 
 </resources>

@@ -20,4 +20,18 @@
         app:showAsAction="never">
 
     </item>
+
+    <item
+        android:id="@+id/ads"
+        android:title="Show Ads"
+        app:showAsAction="always">
+
+    </item>
+
+    <item
+        android:id="@+id/policy"
+        android:title="Privacy Policy"
+        app:showAsAction="never">
+
+    </item>
 </menu>

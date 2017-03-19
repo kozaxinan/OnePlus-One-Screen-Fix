@@ -22,14 +22,14 @@ package com.kozaxinan.fixoposcreen.iab;
  * Created by Artem on 28.01.14.
  */
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
@@ -39,8 +39,7 @@ import android.widget.TextView;
 
 import com.kozaxinan.fixoposcreen.R;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.util.Objects;
 
 /**
  * Helper class for showing fragment dialogs.
@@ -49,12 +48,12 @@ public class DialogHelper {
 
     public static final String TAG_FRAGMENT_DONATION = "dialog_donate";
 
-    public static void showDonateDialog(Activity activity) {
-        showDialog(activity, DonationFragment.class, TAG_FRAGMENT_DONATION);
+    public static void showDonateDialog(AppCompatActivity activity) {
+        showDialog(activity, TAG_FRAGMENT_DONATION);
     }
 
-    private static void showDialog(Activity activity, Class clazz, String tag) {
-        FragmentManager fm = activity.getFragmentManager();
+    private static void showDialog(AppCompatActivity activity, String tag) {
+        FragmentManager fm = activity.getSupportFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         Fragment prev = fm.findFragmentByTag(tag);
         if (prev != null) {
@@ -62,11 +61,7 @@ public class DialogHelper {
         }
         ft.addToBackStack(null);
 
-        try {
-            ((DialogFragment) clazz.newInstance()).show(ft, tag);
-        } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
+        new DonationFragment().show(ft, tag);
     }
 
     /**
@@ -109,42 +104,66 @@ public class DialogHelper {
             mContext = context;
         }
 
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder(201, 17)
-                    .append(mContext)
-                    .append(mIcon)
-                    .append(mTitleText)
-                    .append(mMessageText)
-                    .append(mViewRes)
-                    .append(mView)
-                    .toHashCode();
-        }
+//        /**
+//         * {@inheritDoc}
+//         */
+//        @Override
+//        public int hashCode() {
+//            return new HashCodeBuilder(201, 17)
+//                    .append(mContext)
+//                    .append(mIcon)
+//                    .append(mTitleText)
+//                    .append(mMessageText)
+//                    .append(mViewRes)
+//                    .append(mView)
+//                    .toHashCode();
+//        }
+//
+//        /**
+//         * {@inheritDoc}
+//         */
+//        @Override
+//        public boolean equals(Object o) {
+//            if (o == null)
+//                return false;
+//            if (o == this)
+//                return true;
+//            if (!(o instanceof Builder))
+//                return false;
+//
+//            Builder builder = (Builder) o;
+//
+//            return new EqualsBuilder()
+//                    .append(mContext, builder.mContext)
+//                    .append(mIcon, builder.mIcon)
+//                    .append(mTitleText, builder.mTitleText)
+//                    .append(mMessageText, builder.mMessageText)
+//                    .append(mViewRes, builder.mViewRes)
+//                    .append(mView, builder.mView)
+//                    .isEquals();
+//        }
 
-        /**
-         * {@inheritDoc}
-         */
+
         @Override
         public boolean equals(Object o) {
-            if (o == null)
-                return false;
-            if (o == this)
+            if (this == o) {
                 return true;
-            if (!(o instanceof Builder))
+            }
+            if (!(o instanceof Builder)) {
                 return false;
-
+            }
             Builder builder = (Builder) o;
-            return new EqualsBuilder()
-                    .append(mContext, builder.mContext)
-                    .append(mIcon, builder.mIcon)
-                    .append(mTitleText, builder.mTitleText)
-                    .append(mMessageText, builder.mMessageText)
-                    .append(mViewRes, builder.mViewRes)
-                    .append(mView, builder.mView)
-                    .isEquals();
+            return mViewRes == builder.mViewRes &&
+                   Objects.equals(mContext, builder.mContext) &&
+                   Objects.equals(mIcon, builder.mIcon) &&
+                   Objects.equals(mTitleText, builder.mTitleText) &&
+                   Objects.equals(mMessageText, builder.mMessageText) &&
+                   Objects.equals(mView, builder.mView);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mContext, mIcon, mTitleText, mMessageText, mView, mViewRes);
         }
 
         public Builder setIcon(Drawable icon) {
@@ -163,7 +182,7 @@ public class DialogHelper {
         }
 
         public Builder setIcon(int iconRes) {
-            return setIcon(iconRes == 0 ? null : mContext.getResources().getDrawable(iconRes));
+            return setIcon(iconRes == 0 ? null : ResourcesCompat.getDrawable(mContext.getResources(), iconRes, null));
         }
 
         public Builder setTitle(int titleRes) {

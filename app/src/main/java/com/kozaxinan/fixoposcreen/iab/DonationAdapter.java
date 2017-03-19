@@ -22,6 +22,7 @@ package com.kozaxinan.fixoposcreen.iab;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Paint;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,8 +58,8 @@ public class DonationAdapter extends ArrayAdapter<Donation> {
 
 		Resources res = context.getResources();
 		mDonationAmountLabel = res.getString(R.string.donation_item_label);
-		mColorNormal = res.getColor(R.color.orange);
-		mColorPurchased = res.getColor(R.color.donation_purchased);
+		mColorNormal = ResourcesCompat.getColor(res, R.color.orange, null);
+		mColorPurchased = ResourcesCompat.getColor(res, R.color.donation_purchased, null);
 	}
 
 	private static class Holder {

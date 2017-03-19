@@ -23,10 +23,9 @@
     <string name="close">Close</string>
     <string name="donation_action">Donate</string>
     <string name="donation_title">Donate to developer</string>
-    <string name="donation_info"><![CDATA[
-        This app is a free and <a href="https://github.com/kozaxinan/OnePlus-One-Screen-Fix">open source</a> app.
-        You can show your appreciation and support development by donating:
-    ]]></string>
+    <string name="donation_info">
+        This app is a free and open source.
+        You can show your appreciation and support development by donating</string>
 
     <string name="donation_item_label" translatable="false">﹩%1$s</string>
     <string name="donation_item_bought">You\'ve donated for this item already.</string>

@@ -13,14 +13,13 @@ import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.android.internal.telephony.ITelephony;
-import com.flurry.android.FlurryAgent;
 import com.splunk.mint.Mint;
 
 import java.lang.reflect.InvocationTargetException;
@@ -52,93 +51,109 @@ public class FixServices extends Service implements SensorEventListener {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
+		Log.d("FixServices", "onStartCommand");
+
 		if (!BuildConfig.DEBUG) {
-			Mint.initAndStartSession(this, "0096c713");
+            Mint.initAndStartSession(this, "0096c713");
 		}
 
-		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
-		filter.addAction(Intent.ACTION_SCREEN_OFF);
-		receiver = new ScreenReceiver();
-		getApplicationContext().registerReceiver(receiver, filter);
+		if (receiver == null) {
+			IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+			filter.addAction(Intent.ACTION_SCREEN_OFF);
+			receiver = new ScreenReceiver();
+			getApplicationContext().registerReceiver(receiver, filter);
+		}
 
-		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		Sensor mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-		mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
-
-		Log.d("FixServices", "onStartCommand");
+		if (mSensorManager == null) {
+			mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+			Sensor mProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+			mSensorManager.registerListener(this, mProximity, SensorManager.SENSOR_DELAY_NORMAL);
+		}
 
 		int statusBarHeight = (int) Math.ceil(25 * getResources().getDisplayMetrics().density);
 
-		statusBarView = new View(getApplicationContext());
+		if (statusBarView == null) {
+			statusBarView = new View(getApplicationContext());
+
+			// Handle the problem
+			// At first there was a ghost touch on left side of status bar.
+			// We blocked to opening navigation panel problem
+			// But when there is a ghost touch, the first touch to screen act like it was a slide from top of the screen.
+			// When this happened check where this slide action goes.
+			// And help the user and disconnect the call
+			statusBarView.setOnTouchListener(new View.OnTouchListener() {
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					Log.d("onTouch", "onTouch");
+
+					int action = event.getAction();
+
+					switch (action) {
+						case MotionEvent.ACTION_OUTSIDE:
+							Log.d("onTouch", "ACTION_OUTSIDE");
+							hide();
+						case MotionEvent.ACTION_DOWN:
+//						collapse();
+							// finger touches the screen
+							break;
+
+						case MotionEvent.ACTION_MOVE:
+							// finger moves on the screen
+							Log.d("onTouch", "ACTION_MOVE x: " + event.getX() + " ACTION_MOVE y: " + event.getY());
+
+							// The red hangup button's height
+							// If the touch slides over the hangup button, assume that user try to hang up and disconnect the call.
+							if (event.getY() > 1400 && event.getY() < 1520) {
+
+								// Hang up call
+								disconnectCallAndroid();
+							}
+							break;
+
+						case MotionEvent.ACTION_UP:
+							// finger leaves the screen
+							hide();
+							break;
+					}
+					return true;
+				}
+			});
+		}
 
 		// For debug
-//		statusBarView.setBackgroundColor(Color.GREEN);
+		if (BuildConfig.DEBUG) {
+			statusBarView.setBackgroundColor(0x5500FF00);
+		}
 
 		wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
-		Display display = wm.getDefaultDisplay();
+		if (AppSettings.getInstance().isImmersiveServiceEnable(getApplicationContext())) {
 
-		// Put a view above status bar
-		// Problem occurs at left side so there is no need to cover all of it. We can left right side
-		params = new WindowManager.LayoutParams(display.getWidth() * 2 / 3,
-												statusBarHeight * 4,
-												WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
-												WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-														| WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
-														| WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-														| WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-												PixelFormat.TRANSLUCENT);
-
-		params.gravity = Gravity.LEFT | Gravity.TOP;
-//		wm.addView(statusBarView, params);
-
-		// Handle the problem
-		// At first there was a ghost touch on left side of status bar.
-		// We blocked to opening navigation panel problem
-		// But when there is a ghost touch, the first touch to screen act like it was a slide from top of the screen.
-		// When this happened check where this slide action goes.
-		// And help the user and disconnect the call
-		statusBarView.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				Log.d("onTouch", "onTouch");
-
-				int action = event.getAction();
-
-				switch (action) {
-					case MotionEvent.ACTION_DOWN:
-						// finger touches the screen
-						hide();
-						break;
-
-					case MotionEvent.ACTION_MOVE:
-						// finger moves on the screen
-						Log.d("onTouch", "ACTION_MOVE x: " + event.getX() + " ACTION_MOVE y: " + event.getY());
-						event.getX();
-						event.getY();
-
-						// The red hangup button's height
-						// If the touch slides over the hangup button, assume that user try to hang up and disconnect the call.
-						if (event.getY() > 1400 && event.getY() < 1520) {
-
-							// Hang up call
-							disconnectCallAndroid();
-						}
-						break;
-
-					case MotionEvent.ACTION_UP:
-						// finger leaves the screen
-						break;
-				}
-				return true;
-			}
-		});
-
-		if (!BuildConfig.DEBUG) {
-			FlurryAgent.onStartSession(getApplicationContext(), "XVBD73BM7MHQXGD47WFG");
+			// Put a view above status bar
+			params = new WindowManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+													statusBarHeight * 8,
+													WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
+													WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+															| WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+															| WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+															| WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+													PixelFormat.TRANSLUCENT);
+		} else {
+			// Put a view above status bar
+			params = new WindowManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+													statusBarHeight * 3,
+													WindowManager.LayoutParams.TYPE_SYSTEM_ERROR,
+													WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+															| WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+															| WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+															| WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+															| WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+													PixelFormat.TRANSLUCENT);
 		}
 
-		return super.onStartCommand(intent, flags, startId);
+		params.gravity = Gravity.LEFT | Gravity.TOP;
+
+		return START_STICKY;
 	}
 
 	/**
@@ -149,7 +164,7 @@ public class FixServices extends Service implements SensorEventListener {
 	private void disconnectCallAndroid() {
 		try {
 			TelephonyManager telephonyManager = (TelephonyManager) getApplicationContext().getSystemService(Context.TELEPHONY_SERVICE);
-			Class clazz = Class.forName(telephonyManager.getClass().getName());
+			Class<?> clazz = Class.forName(telephonyManager.getClass().getName());
 			Method method = clazz.getDeclaredMethod("getITelephony");
 
 			method.setAccessible(true);
@@ -167,14 +182,6 @@ public class FixServices extends Service implements SensorEventListener {
 	public void onDestroy() {
 		Log.d("FixServices", "onDestroy");
 
-		// Increase the fix number
-		AppSettings.getInstance().increaseUseCount(getApplicationContext());
-
-		// Collapse navigation panel
-		collapse();
-
-		super.onDestroy();
-
 		// Unregister broadcast receiver
 		getApplicationContext().unregisterReceiver(receiver);
 
@@ -184,9 +191,26 @@ public class FixServices extends Service implements SensorEventListener {
 		// Remove dummy view which is on top of status bar
 		hide();
 
-		if (!BuildConfig.DEBUG) {
-			FlurryAgent.onEndSession(getApplicationContext());
+		try {
+			wm.removeView(statusBarView);
+		} catch (Exception e) {
+//			e.printStackTrace();
 		}
+
+		// Increase the fix number
+		int useCount = AppSettings.getInstance().increaseUseCount(getApplicationContext());
+
+		if (useCount % 25 == 0 && !AppSettings.getInstance().isPro(this)) {
+			Utils.showNotification(getApplicationContext(), "Just prevented bug", useCount + " times notification panel opening bug fixed");
+		}
+		if (!BuildConfig.DEBUG) {
+            Mint.closeSession(this);
+		}
+
+		// Collapse navigation panel
+		collapse();
+
+		super.onDestroy();
 	}
 
 	/**
@@ -206,6 +230,20 @@ public class FixServices extends Service implements SensorEventListener {
 		getApplicationContext().sendBroadcast(it);
 	}
 
+	private void show() {
+		try {
+			wm.addView(statusBarView, params);
+		} catch (Exception e) {
+//			e.printStackTrace();
+		}
+		statusBarView.setVisibility(View.VISIBLE);
+		Utils.pro(getApplicationContext(), statusBarView);
+	}
+
+	private void hide() {
+		statusBarView.setVisibility(View.GONE);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -216,25 +254,9 @@ public class FixServices extends Service implements SensorEventListener {
 
 		// If sensor value changed from 0, try to collapse navigation panel
 		if (distance != 0) {
-			collapse();
-		} else {
 			show();
-		}
-	}
-
-	private void show() {
-		try {
-			wm.addView(statusBarView, params);
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void hide() {
-		try {
-			wm.removeView(statusBarView);
-		}catch (Exception e) {
-			e.printStackTrace();
+		} else {
+			hide();
 		}
 	}
 

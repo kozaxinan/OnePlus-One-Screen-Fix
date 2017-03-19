@@ -1,20 +1,29 @@
 package com.kozaxinan.fixoposcreen;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.flurry.android.FlurryAgent;
-import com.kozaxinan.feedback.Feedback;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.kozaxinan.fixoposcreen.iab.DialogHelper;
 import com.kozaxinan.fixoposcreen.iab.InAppUtils;
 import com.kozaxinan.fixoposcreen.iab.utils.IabHelper;
@@ -22,7 +31,7 @@ import com.splunk.mint.Mint;
 
 import java.util.HashSet;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
 	private SwitchCompat switchCompat;
 
@@ -32,10 +41,39 @@ public class MainActivity extends ActionBarActivity {
 
 	private Toolbar toolbar;
 
+    private Button showAds;
+
+    InterstitialAd mInterstitialAd;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+        // Obtain the FirebaseAnalytics instance.
+        FirebaseAnalytics mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "MyApp");
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "Opened");
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "blabla");
+        mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
+        AdView mAdView = (AdView) findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice("F61B4D68BFC0F8FC79BA0B1074C92EC7").build();
+        mAdView.loadAd(adRequest);
+
+        mInterstitialAd = new InterstitialAd(this);
+        mInterstitialAd.setAdUnitId(getString(R.string.inter_ad_unit_id));
+
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdClosed() {
+                requestNewInterstitial();
+            }
+        });
+
+        requestNewInterstitial();
 
 		toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
 		setSupportActionBar(toolbar);
@@ -57,12 +95,30 @@ public class MainActivity extends ActionBarActivity {
 
 						if (!BuildConfig.DEBUG) {
 							Mint.logEvent("buy_try");
-							FlurryAgent.logEvent("buy_try");
 						}
 					}
 				}
 			}
 		});
+
+        showAds = (Button) findViewById(R.id.showAdsButton);
+        if (!AppSettings.getInstance().isTry(this) && !AppSettings.getInstance().isPro(this)) {
+            showAds.setVisibility(View.VISIBLE);
+            showAds.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    if (mInterstitialAd.isLoaded()) {
+                        mInterstitialAd.show();
+                        AppSettings.getInstance().resetTry(MainActivity.this);
+                    } else {
+                        Toast.makeText(MainActivity.this, "Please try later. :)", Toast.LENGTH_SHORT)
+                             .show();
+                    }
+                    requestNewInterstitial();
+                }
+            });
+        }
 
 		service.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
@@ -71,15 +127,20 @@ public class MainActivity extends ActionBarActivity {
 			}
 		});
 
-		Feedback.with(this).sendTo("kozaxinan@gmail.com");
-
 		if (!BuildConfig.DEBUG) {
 			Mint.logEvent("app_opened");
-			FlurryAgent.logEvent("app_opened");
 		}
 	}
 
-	@Override
+    private void requestNewInterstitial() {
+        AdRequest adRequest = new AdRequest.Builder()
+                .addTestDevice("F61B4D68BFC0F8FC79BA0B1074C92EC7")
+                .build();
+
+        mInterstitialAd.loadAd(adRequest);
+    }
+
+    @Override
 	protected void onResume() {
 		super.onResume();
 
@@ -99,12 +160,21 @@ public class MainActivity extends ActionBarActivity {
 		findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				DialogHelper.showDonateDialog(MainActivity.this);
 
-				if (!BuildConfig.DEBUG) {
-					Mint.logEvent("donate_opened");
-					FlurryAgent.logEvent("donate_opened");
-				}
+                try {
+                    FragmentManager fm = getSupportFragmentManager();
+                    Fragment prev = fm.findFragmentByTag(DialogHelper.TAG_FRAGMENT_DONATION);
+                    if (prev == null) {
+                        DialogHelper.showDonateDialog(MainActivity.this);
+                        if (!BuildConfig.DEBUG) {
+                            Mint.logEvent("donate_opened");
+                        }
+                    }
+                }catch (Exception e) {
+                    e.printStackTrace();
+                    Mint.logException(e);
+                }
+
 			}
 		});
 
@@ -123,7 +193,6 @@ public class MainActivity extends ActionBarActivity {
 		super.onStart();
 		if (!BuildConfig.DEBUG) {
 			Mint.initAndStartSession(this, "0096c713");
-			FlurryAgent.onStartSession(this);
 		}
 	}
 
@@ -131,7 +200,6 @@ public class MainActivity extends ActionBarActivity {
 	protected void onStop() {
 		super.onStop();
 		if (!BuildConfig.DEBUG) {
-			FlurryAgent.onEndSession(this);
 			Mint.closeSession(this);
 		}
 	}
@@ -156,7 +224,6 @@ public class MainActivity extends ActionBarActivity {
 			case R.id.my_apps:
 				if (!BuildConfig.DEBUG) {
 					Mint.logEvent("clicked_my_apps");
-					FlurryAgent.logEvent("clicked_my_apps");
 				}
 
 				browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/search?q=pub%3AKozaxinan"));
@@ -165,7 +232,6 @@ public class MainActivity extends ActionBarActivity {
 			case R.id.xda:
 				if (!BuildConfig.DEBUG) {
 					Mint.logEvent("xdaforum");
-					FlurryAgent.logEvent("xdaforum");
 				}
 
 				browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://forum.xda-developers.com/oneplus-one/general/app-notification-panel-problem-phone-t2999061/"));
@@ -174,11 +240,27 @@ public class MainActivity extends ActionBarActivity {
 			case R.id.oneplus:
 				if (!BuildConfig.DEBUG) {
 					Mint.logEvent("oneplusforum");
-					FlurryAgent.logEvent("oneplusforum");
 				}
 
 				browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://forums.oneplus.net/threads/fix-app-notification-panel-opening-problem-during-phone-call.186588/"));
 				break;
+
+            case R.id.ads:
+                if (mInterstitialAd.isLoaded()) {
+                    mInterstitialAd.show();
+                    AppSettings.getInstance().resetTry(MainActivity.this);
+                } else {
+                    Toast.makeText(MainActivity.this, "Please try later. :)", Toast.LENGTH_SHORT)
+                         .show();
+                }
+                requestNewInterstitial();
+                break;
+
+            case R.id.policy:
+                browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://cdn.rawgit.com/kozaxinan/127bc6197cf74ea8e363fe6633253550/raw/0100a0ce5fa8a4fa4bab4ba434338b44881a355f/policy.html"));
+                startActivity(browserIntent);
+
+                break;
 		}
 
 		if (browserIntent != null) {
@@ -211,4 +293,33 @@ public class MainActivity extends ActionBarActivity {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
+
+    @Override
+    public void onBackPressed() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Try Meteor Crush");
+        builder.setView(R.layout.download_game);
+        builder.setNegativeButton("Disable", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        });
+
+        builder.setPositiveButton("Go Store", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                                                  Uri.parse("https://play.google.com/store/apps/details?id=com.kozaxinan.meteorcrush"));
+                startActivity(browserIntent);
+                finish();
+
+            }
+        });
+
+        builder.create().show();
+    }
 }

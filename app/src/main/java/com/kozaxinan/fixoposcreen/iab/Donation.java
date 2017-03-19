@@ -19,8 +19,7 @@
 
 package com.kozaxinan.fixoposcreen.iab;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import java.util.Objects;
 
 /**
  * The helper class of donation item.
@@ -42,36 +41,55 @@ public class Donation {
         this.sku = "donation_" + amount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(9, 51)
-                .append(amount)
-                .append(text)
-                .append(sku)
-                .toHashCode();
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public int hashCode() {
+//        return new HashCodeBuilder(9, 51)
+//                .append(amount)
+//                .append(text)
+//                .append(sku)
+//                .toHashCode();
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     */
+//    @Override
+//    public boolean equals(Object o) {
+//        if (o == null)
+//            return false;
+//        if (o == this)
+//            return true;
+//        if (!(o instanceof Donation))
+//            return false;
+//
+//        Donation donation = (Donation) o;
+//        return new EqualsBuilder()
+//                .append(amount, donation.amount)
+//                .append(text, donation.text)
+//                .append(sku, donation.sku)
+//                .isEquals();
+//    }
 
-    /**
-     * {@inheritDoc}
-     */
+
     @Override
     public boolean equals(Object o) {
-        if (o == null)
-            return false;
-        if (o == this)
+        if (this == o) {
             return true;
-        if (!(o instanceof Donation))
+        }
+        if (!(o instanceof Donation)) {
             return false;
-
+        }
         Donation donation = (Donation) o;
-        return new EqualsBuilder()
-                .append(amount, donation.amount)
-                .append(text, donation.text)
-                .append(sku, donation.sku)
-                .isEquals();
+        return amount == donation.amount &&
+               Objects.equals(sku, donation.sku) &&
+               Objects.equals(text, donation.text);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(amount, sku, text);
+    }
 }

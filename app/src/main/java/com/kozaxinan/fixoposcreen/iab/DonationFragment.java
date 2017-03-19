@@ -22,12 +22,12 @@ package com.kozaxinan.fixoposcreen.iab;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
+import android.support.v4.app.DialogFragment;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.AdapterView;
@@ -36,7 +36,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.flurry.android.FlurryAgent;
 import com.kozaxinan.fixoposcreen.AppSettings;
 import com.kozaxinan.fixoposcreen.BuildConfig;
 import com.kozaxinan.fixoposcreen.R;
@@ -74,13 +73,13 @@ public class DonationFragment extends DialogFragment {
 
 	private final HashSet<String> mInventorySet = new HashSet<String>();
 
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		mDonationList = DonationItems.get(getResources());
-	}
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mDonationList = DonationItems.get(getResources());
+    }
 
-	@Override
+    @Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Activity activity = getActivity();
 		assert activity != null;
@@ -95,7 +94,7 @@ public class DonationFragment extends DialogFragment {
 				.setNegativeButton(R.string.close, null);
 
 		TextView info = (TextView) view.findViewById(R.id.info);
-		info.setText(Html.fromHtml(getString(R.string.donation_info)));
+		info.setText(getString(R.string.donation_info));
 		info.setMovementMethod(new LinkMovementMethod());
 
 		mError = (TextView) view.findViewById(R.id.error);
@@ -233,7 +232,6 @@ public class DonationFragment extends DialogFragment {
 
 					if (!BuildConfig.DEBUG) {
 						Mint.logEvent("donated");
-						FlurryAgent.logEvent("donated");
 					}
 				}
 			};
